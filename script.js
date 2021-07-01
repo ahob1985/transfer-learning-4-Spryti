@@ -38,7 +38,15 @@ function setup() {
 }
 
 function draw() {
-
+  //Shows video
+  if(isModelReady) {
+    image(video, 0, 0);
+  }
+  //Model starts predicting 
+  if(isTrainingComplete) {
+    predictor.predict(canvas, gotResults);
+  }
+  
 }
 
 function buildInput() {
@@ -64,26 +72,42 @@ function buildInput() {
     buttonDiv.style("display", "none");
     sliderDiv.style("display", "none");
     predictor.train(whileTraining);
-    
-  })
+  });
+  buttonDiv.style("display", "none");
+  sliderDiv.style("display", "none");
 }
 
 function videoReady() {
-
+  video.style("display", "none");
+  featureExtractor = ml5.featureExtractor("MobileNet", featureExtractorLoaded);
 }
 
 function featureExtractorLoaded() {
-
+  predictor = featureExtractor.regression(canvas, modelReady);
 }
 
 function modelReady() {
+  isModelReady = true;
+  textP.html("Add examples to train the AI");
+  buttonDiv.style("display", "block");
+  sliderDiv.style("display", "block");
 
 }
 
 function whileTraining(loss) {
-
+  if(loss) {
+    console.log(loss);
+  } else {
+    isTrainingComplete = true;
+  }
 }
 
 function gotResults(error, results) {
-
+  if(error) {
+    console.error(error);
+  } else {
+    //console.log(results);
+    let value = floor(results.value * 100);
+    textP.html("Happiness: " + value + "%");
+  }
 }
